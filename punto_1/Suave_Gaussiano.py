@@ -4,6 +4,11 @@ from scipy import fftpack
 from scipy.fftpack import fft, fftfreq
 from scipy.signal import convolve2d
 
+print "Ingrese el nombre del archivo de la imagen entre comillas "
+imagen=input()
+print "Ingrese el ancho de la gaussiana entre comillas"
+sigma=float(input())
+
 size = 60
 imge=plt.imread("gat.png")
 
@@ -11,7 +16,7 @@ def gaussiana(s,k,X,Y,ksize):
 	kernel=np.zeros((ksize,ksize),dtype=complex)
 	for i in range(ksize):
 		for j in range(ksize):
-			kernel[i][j]=(1/(2*np.pi*(s**2)))*np.exp(-((X[i]-k)**2 + (Y[j]-k)**2)/(2*(s**2)))
+			kernel[i][j]=np.exp(-((X[i]-k)**2 + (Y[j]-k)**2)/(2*(s**2)))#(1/(2*np.pi*(s**2)))*
 	return kernel
 fils=np.shape(imge)[0]
 cols=np.shape(imge)[1]
@@ -76,10 +81,10 @@ def convertir_a_imagen(matr,matv,mata,img):
 			img[i][j][1]=tr_verde[i][j]
 			img[i][j][2]=tr_azul[i][j]
 	return img
-tr_rojo=leer_imagen("gat.png")[0]
-tr_verde=leer_imagen("gat.png")[1]
-tr_azul=leer_imagen("gat.png")[2]
-print np.shape(tr_rojo)[0]
+tr_rojo=leer_imagen(imagen)[0]
+tr_verde=leer_imagen(imagen)[1]
+tr_azul=leer_imagen(imagen)[2]
+
 def fourier_2D(matriz):
 	mat_medio1=np.zeros(np.shape(matriz),dtype=complex)
 	mat_medio2=np.zeros(np.shape(matriz),dtype=complex)
@@ -98,11 +103,11 @@ def inversa_2D(matriz):
 		mat_medio2[j]=inversa(np.transpose(mat_medio1)[j],np.shape(matriz)[1])
 	return np.transpose(mat_medio2)
 
-#plt.imshow(fourier_2D(rellenar(kernel,tr_rojo)).real)
-#plt.show()
-conv_rojo=fourier_2D(tr_rojo)*fourier_2D(rellenar(gaussiana(4,size/2,X,Y,size),tr_rojo))
-conv_verde=fourier_2D(tr_verde)*fourier_2D(rellenar(gaussiana(4,size/2,X,Y,size),tr_verde))
-conv_azul=fourier_2D(tr_azul)*fourier_2D(rellenar(gaussiana(4,size/2,X,Y,size),tr_azul))	
+
+transf_kernel=fourier_2D(rellenar(gaussiana(sigma,size/2,X,Y,size),tr_rojo))
+conv_rojo=fourier_2D(tr_rojo)*transf_kernel
+conv_verde=fourier_2D(tr_verde)*transf_kernel
+conv_azul=fourier_2D(tr_azul)*transf_kernel	
 
 filtrada=convertir_a_imagen(inversa_2D(conv_rojo).real,inversa_2D(conv_verde).real,inversa_2D(conv_azul).real,imge)
 plt.figure()
@@ -110,8 +115,7 @@ plt.subplot(1,2,1)
 plt.imshow(filtrada)
 plt.subplot(1,2,2)
 plt.imshow(imge)
-#plt.subplot(1,3,3)
-#plt.imshow(rellenar(gaussiana(4,size/2,X,Y,size),tr_azul))
+
 plt.savefig("suave.png")
 plt.show()
 

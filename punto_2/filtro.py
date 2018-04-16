@@ -4,6 +4,11 @@ from scipy import fftpack
 from scipy.fftpack import fft, fftfreq
 from scipy.signal import convolve2d
 
+print "Ingrese el nombre del archivo de la imagen"
+imagen=input()
+print "Ingrese bajo si quiere un filtro pasabajas o alto si quiere uno pasaaltas "
+tipo_filtro=input()
+
 imge=plt.imread("gat.png")
 def fourier(arreglo,Np):
 	N=Np
@@ -55,9 +60,9 @@ def convertir_a_imagen(matr,matv,mata,img):
 			img[i][j][1]=tr_verde[i][j]
 			img[i][j][2]=tr_azul[i][j]
 	return img
-tr_rojo=leer_imagen("gat.png")[0]
-tr_verde=leer_imagen("gat.png")[1]
-tr_azul=leer_imagen("gat.png")[2]
+tr_rojo=leer_imagen(imagen)[0]
+tr_verde=leer_imagen(imagen)[1]
+tr_azul=leer_imagen(imagen)[2]
 
 def fourier_2D(matriz):
 	mat_medio1=np.zeros(np.shape(matriz),dtype=complex)
@@ -95,15 +100,36 @@ def altas(matriz):
 			else:
 				matriz[i][j]=0.5*(1-np.sin(np.pi*(i-0.07*f)/(20)))
 	return matriz
-red1=inversa_2D(shifting(altas(shifting(fourier_2D(tr_rojo))))).real
-gre1=inversa_2D(shifting(altas(shifting(fourier_2D(tr_verde))))).real
-blu1=inversa_2D(shifting(altas(shifting(fourier_2D(tr_azul))))).real
 
-filtrada=convertir_a_imagen(red1,gre1,blu1,imge)
-plt.imshow(filtrada)
-plt.show()
+def bajas(matriz):
+	f=np.shape(matriz)[0]
+	c=np.shape(matriz)[1]
+	for i in range(f):
+		for j in range(c):
+			if np.sqrt((i-f)**2+(j-c)**2)-10<0.07*f:
+				matriz[i][j]=1*matriz[i][j]
+			elif (np.sqrt((i-f)**2+(j-c)**2))+10>0.07*f:
+				matriz[i][j]=0
+			else:
+				matriz[i][j]=0.5*(1-np.sin(np.pi*(i-0.07*f)/(20)))
+	return matriz
+if tipo_filtro=="alto":
+	red1=inversa_2D(shifting(altas(shifting(fourier_2D(tr_rojo))))).real
+	gre1=inversa_2D(shifting(altas(shifting(fourier_2D(tr_verde))))).real
+	blu1=inversa_2D(shifting(altas(shifting(fourier_2D(tr_azul))))).real
 
+	filtrada=convertir_a_imagen(red1,gre1,blu1,imge)
+	plt.imshow(filtrada)
+	plt.savefig("bajas.png")
 
+elif tipo_filtro=="bajo":
+	red1=inversa_2D(shifting(bajas(shifting(fourier_2D(tr_rojo))))).real
+	gre1=inversa_2D(shifting(bajas(shifting(fourier_2D(tr_verde))))).real
+	blu1=inversa_2D(shifting(bajas(shifting(fourier_2D(tr_azul))))).real
+
+	filtrada=convertir_a_imagen(red1,gre1,blu1,imge)
+	plt.imshow(filtrada)
+	plt.savefig("altas.png")
 
 	
 	
