@@ -74,12 +74,13 @@ def leer_imagen(imagen):
 		mazul.append(fazul)
 	return np.array([np.array(mrojo),np.array(mverde),np.array(mazul)])
 def convertir_a_imagen(matr,matv,mata,img):
-	
+	fils=np.shape(matr)[0]
+	cols=np.shape(matr)[1]
 	for i in range(fils):
 		for j in range(cols):
-			img[i][j][0]=tr_rojo[i][j]
-			img[i][j][1]=tr_verde[i][j]
-			img[i][j][2]=tr_azul[i][j]
+			img[i][j][0]=matr[i][j]
+			img[i][j][1]=matv[i][j]
+			img[i][j][2]=mata[i][j]
 	return img
 tr_rojo=leer_imagen(imagen)[0]
 tr_verde=leer_imagen(imagen)[1]
@@ -104,17 +105,22 @@ def inversa_2D(matriz):
 	return np.transpose(mat_medio2)
 
 
-transf_kernel=fourier_2D(rellenar(gaussiana(sigma,size/2,X,Y,size),tr_rojo))
-conv_rojo=fourier_2D(tr_rojo)*transf_kernel
-conv_verde=fourier_2D(tr_verde)*transf_kernel
-conv_azul=fourier_2D(tr_azul)*transf_kernel	
+#transf_kernel=fourier_2D(rellenar(gaussiana(sigma,size/2,X,Y,size),tr_rojo))
+t = np.linspace(-10, 10, 30)
+bump = np.exp(-sigma*t**2)
+bump = bump / np.trapz(bump) 
+kernel = bump[:, np.newaxis] * bump[np.newaxis, :]
+otro_kernel=fourier_2D(rellenar(kernel,tr_rojo))
+conv_rojo=fourier_2D(tr_rojo)*otro_kernel
+conv_verde=fourier_2D(tr_verde)*otro_kernel
+conv_azul=fourier_2D(tr_azul)*otro_kernel	
 
-filtrada=convertir_a_imagen(inversa_2D(conv_rojo).real,inversa_2D(conv_verde).real,inversa_2D(conv_azul).real,imge)
+filtrada=convertir_a_imagen(inversa_2D(conv_rojo).real,inversa_2D(conv_verde).real,inversa_2D(conv_azul).real,plt.imread(imagen))
 plt.figure()
 plt.subplot(1,2,1)
 plt.imshow(filtrada)
 plt.subplot(1,2,2)
-plt.imshow(imge)
+plt.imshow(plt.imread(imagen))
 
 plt.savefig("suave.png")
 plt.show()

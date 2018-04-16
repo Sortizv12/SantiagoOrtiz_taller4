@@ -32,7 +32,7 @@ double lagrange_interp(double* lin,double* xx, double* yy)
 	{
 		sum+=p[i];
 	}
-	
+	return sum;
 
 }
 

@@ -4,9 +4,9 @@ from scipy import fftpack
 from scipy.fftpack import fft, fftfreq
 from scipy.signal import convolve2d
 
-print "Ingrese el nombre del archivo de la imagen"
+print "Ingrese el nombre del archivo de la imagen en comillas"
 imagen=input()
-print "Ingrese bajo si quiere un filtro pasabajas o alto si quiere uno pasaaltas "
+print "Ingrese bajo si quiere un filtro pasabajas o alto si quiere uno pasaaltas en comillas"
 tipo_filtro=input()
 
 imge=plt.imread("gat.png")
@@ -56,9 +56,9 @@ def convertir_a_imagen(matr,matv,mata,img):
 	(fils,cols)=np.shape(matr)
 	for i in range(fils):
 		for j in range(cols):
-			img[i][j][0]=tr_rojo[i][j]
-			img[i][j][1]=tr_verde[i][j]
-			img[i][j][2]=tr_azul[i][j]
+			img[i][j][0]=matr[i][j]
+			img[i][j][1]=matv[i][j]
+			img[i][j][2]=mata[i][j]
 	return img
 tr_rojo=leer_imagen(imagen)[0]
 tr_verde=leer_imagen(imagen)[1]
@@ -120,7 +120,7 @@ if tipo_filtro=="alto":
 
 	filtrada=convertir_a_imagen(red1,gre1,blu1,imge)
 	plt.imshow(filtrada)
-	plt.savefig("bajas.png")
+	plt.savefig("altas.png")
 
 elif tipo_filtro=="bajo":
 	red1=inversa_2D(shifting(bajas(shifting(fourier_2D(tr_rojo))))).real
@@ -129,7 +129,7 @@ elif tipo_filtro=="bajo":
 
 	filtrada=convertir_a_imagen(red1,gre1,blu1,imge)
 	plt.imshow(filtrada)
-	plt.savefig("altas.png")
+	plt.savefig("bajas.png")
 
 	
 	
