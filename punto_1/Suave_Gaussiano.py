@@ -9,14 +9,14 @@ imagen=input()
 print "Ingrese el ancho de la gaussiana entre comillas"
 sigma=float(input())
 
-size = 60
+size = 20
 imge=plt.imread("gat.png")
 
 def gaussiana(s,k,X,Y,ksize):
 	kernel=np.zeros((ksize,ksize),dtype=complex)
 	for i in range(ksize):
 		for j in range(ksize):
-			kernel[i][j]=np.exp(-((X[i]-k)**2 + (Y[j]-k)**2)/(2*(s**2)))#(1/(2*np.pi*(s**2)))*
+			kernel[i][j]=np.exp(-((X[i]-k)**2 + (Y[j]-k)**2)/(2*(s**2)))*(1/(np.sqrt(2*np.pi*(s**2))))
 	return kernel
 fils=np.shape(imge)[0]
 cols=np.shape(imge)[1]
@@ -105,25 +105,24 @@ def inversa_2D(matriz):
 	return np.transpose(mat_medio2)
 
 
-#transf_kernel=fourier_2D(rellenar(gaussiana(sigma,size/2,X,Y,size),tr_rojo))
-t = np.linspace(-10, 10, 30)
-bump = np.exp(-sigma*t**2)
-bump = bump / np.trapz(bump) 
-kernel = bump[:, np.newaxis] * bump[np.newaxis, :]
-otro_kernel=fourier_2D(rellenar(kernel,tr_rojo))
-conv_rojo=fourier_2D(tr_rojo)*otro_kernel
-conv_verde=fourier_2D(tr_verde)*otro_kernel
-conv_azul=fourier_2D(tr_azul)*otro_kernel	
+transf_kernel=fourier_2D(rellenar(gaussiana(sigma*(1/np.sqrt(2*np.pi)),size/2,X,Y,size),tr_rojo))
+conv_rojo=fourier_2D(tr_rojo)*transf_kernel
+conv_verde=fourier_2D(tr_verde)*transf_kernel
+conv_azul=fourier_2D(tr_azul)*transf_kernel	
 
-filtrada=convertir_a_imagen(inversa_2D(conv_rojo).real,inversa_2D(conv_verde).real,inversa_2D(conv_azul).real,plt.imread(imagen))
+a=inversa_2D(conv_rojo)
+b=inversa_2D(conv_verde)
+c=inversa_2D(conv_azul)
+
+a=a/np.max(a)
+b=b/np.max(b)
+c=c/np.max(c)
+
+filtrada=convertir_a_imagen(a.real,b.real,c.real,plt.imread(imagen))
 plt.figure()
-plt.subplot(1,2,1)
 plt.imshow(filtrada)
-plt.subplot(1,2,2)
-plt.imshow(plt.imread(imagen))
-
 plt.savefig("suave.png")
-plt.show()
+
 
 
 
